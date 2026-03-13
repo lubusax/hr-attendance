@@ -12,8 +12,10 @@ class HrEmployeeBase(models.AbstractModel):
     _inherit = "hr.employee.base"
 
     @api.model
-    def register_attendance(self, card_code, log= False):
+    def register_attendance(self, card_code, log= False, iot_device_id=False):
         res = super().register_attendance(card_code)
+        if iot_device_id:
+            res["iot_device_id"] = iot_device_id
         new_log = self._prepare_attendance_rfid_log(res)
         if log:
             log.sudo().write(
@@ -27,19 +29,22 @@ class HrEmployeeBase(models.AbstractModel):
         return res
 
     def _prepare_attendance_rfid_log(self, res):
-        return {
-            "state": "success" if res["logged"] else "failed",
-            "rfid_card_code": res["rfid_card_code"],
-            "employee_name": res["employee_name"],
-            "employee_id": res["employee_id"],
-            "error_message":res["error_message"],
-            "logged":res["logged"],
-            "action": res["action"],
+        vals = {
+            "state": "success" if res.get("logged") else "failed",
+            "rfid_card_code": res.get("rfid_card_code"),
+            "employee_name": res.get("employee_name"),
+            "employee_id": res.get("employee_id"),
+            "error_message": res.get("error_message"),
+            "logged": res.get("logged"),
+            "action": res.get("action"),
             "timestamp": fields.Datetime.now()
         }
+        if "iot_device_id" in res:
+            vals["iot_device_id"] = res["iot_device_id"]
+        return vals
 
     @api.model
     def register_attendance_with_log(self, log):
         with freezegun.freeze_time(datetime.fromtimestamp(log.timestamp.timestamp(), tz=None)):
-            result = self.register_attendance(log.rfid_card_code, log)
+            result = self.register_attendance(log.rfid_card_code, log, iot_device_id=log.iot_device_id.id if log.iot_device_id else False)
         return result
