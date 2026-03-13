@@ -26,6 +26,7 @@ class RfidAttendanceLog(models.Model):
     )
     timestamp = fields.Datetime(string="RFID-Timestamp", default=fields.Datetime.now, required=True)
     iot_device_id = fields.Many2one('iot.device',
+                                  string="IoT Device",
                                   ondelete='cascade',
                                   index=True)
     retry_counter = fields.Integer(string="Retry Counter", default=0)
