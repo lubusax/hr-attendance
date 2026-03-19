@@ -10,7 +10,7 @@ from odoo.tools.misc import mute_logger
 class TestHrAttendance(TransactionCase):
     def setUp(self):
         super(TestHrAttendance, self).setUp()
-        self.log_failed =self.env["iot.template"].create(
+        self.log_failed = self.env["iot.template"].create(
             {
                 "state" : "failed",
                 "rfid_card_code": self.rfid_card_code,

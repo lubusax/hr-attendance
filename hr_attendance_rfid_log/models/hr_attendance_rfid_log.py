@@ -1,9 +1,10 @@
 # Copyright 2023 - thingsintouch.com
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
-from odoo import api, fields, models
+from odoo import fields, models
 
 from datetime import timedelta
+
 
 class RfidAttendanceLog(models.Model):
     _name = "hr.attendance.rfid.log"
@@ -14,21 +15,30 @@ class RfidAttendanceLog(models.Model):
         selection=[("success", "Success"), ("failed", "Failed"), ("retry", "Retry"), ("ignore", "Ignore")],
         readonly=True
     )
-    rfid_card_code = fields.Char(readonly=True, string = "RFID Card Code", copy=False) #hr.employee.base.rfid_card_code
-    employee_name = fields.Char(readonly=True) # hr.employee.base.name
-    employee_id = fields.Many2one('hr.employee',
-                                  ondelete='cascade',
-                                  index=True)
+    rfid_card_code = fields.Char(readonly=True, string="RFID Card Code", copy=False)  # hr.employee.base.rfid_card_code
+    employee_name = fields.Char(readonly=True)  # hr.employee.base.name
+    employee_id = fields.Many2one(
+        'hr.employee',
+        ondelete='cascade',
+        index=True
+    )
     error_message = fields.Char(readonly=True)
     logged = fields.Boolean(readonly=True)
     action = fields.Selection(
         selection=[("check_in", "check in"), ("check_out", "check out"), ("FALSE", "Not Defined (in or out)")], readonly=True
     )
     timestamp = fields.Datetime(string="RFID-Timestamp", default=fields.Datetime.now, required=True)
-    iot_device_id = fields.Many2one('iot.device',
-                                  string="IoT Device",
-                                  ondelete='cascade',
-                                  index=True)
+    iot_device_id = fields.Many2one(
+        'iot.device',
+        string="IoT Device",
+        ondelete='cascade',
+        index=True
+    )
+    iot_device_name = fields.Char(
+        related='iot_device_id.name',
+        string="IoT Device Name",
+        readonly=True
+    )
     retry_counter = fields.Integer(string="Retry Counter", default=0)
 
     def action_open_wizard_assign_employee(self):
@@ -50,7 +60,7 @@ class RfidAttendanceLog(models.Model):
 
     def retry_now(self):
         if self.state == "retry":
-            self.sudo().retry_counter +=1
+            self.sudo().retry_counter += 1
             self.env["hr.employee"].register_attendance_with_log(self)
 
     def _retry_attendance_rfid_log(self):
