@@ -14,6 +14,43 @@ In `hr_attendance_log_view.xml`, the tree view includes the field `iot_device_na
 3. **No IoT Device Passed During Logging:**
    The process creating the log (`hr.employee`'s `register_attendance` method) might not be passing the `iot_device_id` correctly. If the base `iot_device_id` field on the log record itself is null/empty, the related name will also obviously be blank.
 
+## Codebase Analysis on `iot_device_id` propagation
+
+We investigated the repository to see if `iot_device_id` is passed correctly between the modules handling the RPC call.
+
+1. In the base module (`hr_attendance_rfid`), the method `register_attendance` is defined as:
+   ```python
+   @api.model
+   def register_attendance(self, card_code):
+       # ...
+   ```
+2. In the dependent module (`hr_attendance_rfid_log`), this method is overridden as:
+   ```python
+   @api.model
+   def register_attendance(self, card_code, log=False, iot_device_id=False):
+       res = super().register_attendance(card_code)
+       if iot_device_id:
+           res["iot_device_id"] = iot_device_id
+       # ...
+   ```
+
+### Findings:
+Because external systems call `register_attendance` via RPC, they might encounter issues passing `iot_device_id`. If they send it as a keyword argument (e.g., `iot_device_id=5`), it will only work if `hr_attendance_rfid_log` is installed. If only `hr_attendance_rfid` is installed, this will result in a `TypeError` due to an unexpected keyword argument in the base method.
+
+Conversely, if external systems strictly rely on the base method's signature, they won't pass `iot_device_id` at all, resulting in empty values for `iot_device_id` and consequently blank `iot_device_name` fields.
+
+### Recommendations for changes:
+To fix this and ensure the ID is always passed without risking method signature conflicts, we recommend the following changes:
+
+1. **Update `hr_attendance_rfid` base module:** Modify the `register_attendance` signature in `hr_attendance_rfid/models/hr_employee.py` to gracefully accept arbitrary keyword arguments or explicitly accept `iot_device_id`. E.g.,
+   ```python
+   @api.model
+   def register_attendance(self, card_code, **kwargs):
+       # ...
+   ```
+
+2. **Check external systems:** Update the external systems making the RPC call to ensure they actually send the `iot_device_id` in their payload. If they are sending it as part of kwargs, step 1 will resolve the issue and safely propagate the parameter to overriding methods like the one in `hr_attendance_rfid_log`.
+
 ## How to Manually Check and Fix
 
 ### Step 1: Verify `iot_device_id` is populated
