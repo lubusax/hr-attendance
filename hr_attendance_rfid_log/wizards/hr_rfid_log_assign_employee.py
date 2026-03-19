@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
+
 from odoo import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ class RfidLogAssignEmployee(models.TransientModel):
     hr_attendance_rfid_log_id = fields.Many2one('hr.attendance.rfid.log', "Log", required=True)
     rfid_card_code = fields.Char(readonly=True, string="RFID Card Code", copy=False)
     employee_id = fields.Many2one('hr.employee', "Employee", required=True)
-    warning_message = fields.Char()
+    warning_message = fields.Char(string="Warning Message")
 
     def action_assign_employee(self):
         self.employee_id.rfid_card_code = self.rfid_card_code

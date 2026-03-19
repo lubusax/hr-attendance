@@ -1,10 +1,11 @@
 # Copyright 2023 - thingsintouch.com
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
-from odoo import api, models, fields
 from datetime import datetime
 
 import freezegun
+
+from odoo import api, fields, models
 
 
 class HrEmployeeBase(models.AbstractModel):

@@ -1,9 +1,9 @@
 # Copyright 2023 - thingsintouch.com
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
-from odoo import fields, models
-
 from datetime import timedelta
+
+from odoo import fields, models
 
 
 class RfidAttendanceLog(models.Model):
@@ -13,19 +13,23 @@ class RfidAttendanceLog(models.Model):
 
     state = fields.Selection(
         selection=[("success", "Success"), ("failed", "Failed"), ("retry", "Retry"), ("ignore", "Ignore")],
+        string="State",
         readonly=True
     )
     rfid_card_code = fields.Char(readonly=True, string="RFID Card Code", copy=False)  # hr.employee.base.rfid_card_code
-    employee_name = fields.Char(readonly=True)  # hr.employee.base.name
+    employee_name = fields.Char(string="Employee Name", readonly=True)  # hr.employee.base.name
     employee_id = fields.Many2one(
         'hr.employee',
+        string="Employee",
         ondelete='cascade',
         index=True
     )
-    error_message = fields.Char(readonly=True)
-    logged = fields.Boolean(readonly=True)
+    error_message = fields.Char(string="Error Message", readonly=True)
+    logged = fields.Boolean(string="Logged", readonly=True)
     action = fields.Selection(
-        selection=[("check_in", "check in"), ("check_out", "check out"), ("FALSE", "Not Defined (in or out)")], readonly=True
+        selection=[("check_in", "check in"), ("check_out", "check out"), ("FALSE", "Not Defined (in or out)")],
+        string="Action",
+        readonly=True
     )
     timestamp = fields.Datetime(string="RFID-Timestamp", default=fields.Datetime.now, required=True)
     iot_device_id = fields.Many2one(
