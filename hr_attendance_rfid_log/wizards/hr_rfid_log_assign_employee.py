@@ -12,9 +12,17 @@ class RfidLogAssignEmployee(models.TransientModel):
     _name = "hr.attendance.rfid.log.assign.employee"
     _description = "Assign an employee to a RFID card code"
 
-    hr_attendance_rfid_log_id = fields.Many2one('hr.attendance.rfid.log', "Log", required=True)
+    hr_attendance_rfid_log_id = fields.Many2one(
+        'hr.attendance.rfid.log',
+        string="Log",
+        required=True
+    )
     rfid_card_code = fields.Char(readonly=True, string="RFID Card Code", copy=False)
-    employee_id = fields.Many2one('hr.employee', "Employee", required=True)
+    employee_id = fields.Many2one(
+        'hr.employee',
+        string="Employee",
+        required=True
+    )
     warning_message = fields.Char(string="Warning Message")
 
     def action_assign_employee(self):

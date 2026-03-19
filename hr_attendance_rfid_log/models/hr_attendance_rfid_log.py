@@ -38,11 +38,6 @@ class RfidAttendanceLog(models.Model):
         ondelete='cascade',
         index=True
     )
-    iot_device_name = fields.Char(
-        related='iot_device_id.name',
-        string="IoT Device Name",
-        readonly=True
-    )
     retry_counter = fields.Integer(string="Retry Counter", default=0)
 
     def action_open_wizard_assign_employee(self):
@@ -56,13 +51,13 @@ class RfidAttendanceLog(models.Model):
         }
         return action
 
-    def set_to_retry_state(self):
+    def action_set_to_retry_state(self):
         self.sudo().state = "retry"
 
-    def set_to_ignore_state(self):
+    def action_set_to_ignore_state(self):
         self.sudo().state = "ignore"
 
-    def retry_now(self):
+    def action_retry_now(self):
         if self.state == "retry":
             self.sudo().retry_counter += 1
             self.env["hr.employee"].register_attendance_with_log(self)
@@ -74,7 +69,7 @@ class RfidAttendanceLog(models.Model):
             ]
         )
         for log in logs_to_retry:
-            log.retry_now()
+            log.action_retry_now()
 
     def _purge_attendance_rfid_log(self):
         current_date = fields.Datetime.now()
