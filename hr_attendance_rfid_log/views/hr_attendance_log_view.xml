@@ -10,7 +10,7 @@
                 <field name="timestamp" />
                 <field name="employee_id" />
                 <field name="rfid_card_code" />
-                <field name="iot_device_id" />
+                <field name="iot_device_name" />
                 <field name="action"  attrs="{'invisible': [('state', '=', 'retry')]}"/>
                 <field name="error_message" attrs="{'invisible': [('state', '!=', 'failed')]}"/>
                 <field name="create_date" />

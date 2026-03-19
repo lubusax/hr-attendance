@@ -1,7 +1,7 @@
 # Copyright 2023 - thingsintouch.com
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
-from odoo import _, api, models, fields
+from odoo import api, models, fields
 from datetime import datetime
 
 import freezegun
@@ -12,7 +12,7 @@ class HrEmployeeBase(models.AbstractModel):
     _inherit = "hr.employee.base"
 
     @api.model
-    def register_attendance(self, card_code, log= False, iot_device_id=False):
+    def register_attendance(self, card_code, log=False, iot_device_id=False):
         res = super().register_attendance(card_code)
         if iot_device_id:
             res["iot_device_id"] = iot_device_id
