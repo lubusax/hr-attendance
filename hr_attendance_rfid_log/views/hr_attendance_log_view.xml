@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record id="att_rfid_log_tree_view" model="ir.ui.view">
+    <record id="hr_attendance_rfid_log_view_tree" model="ir.ui.view">
         <field name="name">hr.attendance.rfid.log.tree</field>
         <field name="model">hr.attendance.rfid.log</field>
         <field name="arch" type="xml">
@@ -10,12 +10,11 @@
                 <field name="timestamp" />
                 <field name="employee_id" />
                 <field name="rfid_card_code" />
-                <field name="iot_device_name" />
                 <field name="action"  attrs="{'invisible': [('state', '=', 'retry')]}"/>
                 <field name="error_message" attrs="{'invisible': [('state', '!=', 'failed')]}"/>
                 <field name="create_date" />
                     <button
-                        name="retry_now"
+                        name="action_retry_now"
                         class="oe_highlight"
                         string="Retry Now"
                         type="object"
@@ -24,7 +23,7 @@
             </tree>
         </field>
     </record>
-    <record id="att_rfid_log_form_view" model="ir.ui.view">
+    <record id="hr_attendance_rfid_log_view_form" model="ir.ui.view">
         <field name="name">hr.attendance.rfid.log.form</field>
         <field name="model">hr.attendance.rfid.log</field>
         <field name="arch" type="xml">
@@ -39,14 +38,14 @@
                         type="object"
                     />
                     <button
-                        name="set_to_retry_state"
+                        name="action_set_to_retry_state"
                         class="oe_highlight"
                         string="Retry"
                         attrs="{'invisible': ['|',('state', '=', 'success'), ('state', '=', 'retry'), ('employee_id', '!=', False)]}"
                         type="object"
                     />
                     <button
-                        name="set_to_ignore_state"
+                        name="action_set_to_ignore_state"
                         class="btn-danger"
                         string="Ignore"
                         attrs="{'invisible': [('state', '=', 'success'),('employee_id', '!=', False)]}"
@@ -94,7 +93,7 @@
         <field name="res_model">hr.attendance.rfid.log</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="att_rfid_log_tree_view" />
+        <field name="view_id" ref="hr_attendance_rfid_log_view_tree" />
     </record>
     <menuitem
         name="Logs"
