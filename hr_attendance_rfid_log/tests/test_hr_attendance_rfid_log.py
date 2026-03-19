@@ -10,17 +10,19 @@ from odoo.tools.misc import mute_logger
 class TestHrAttendance(TransactionCase):
     def setUp(self):
         super(TestHrAttendance, self).setUp()
-        self.log_failed = self.env["iot.template"].create(
+        self.employee_model = self.env["hr.employee"]
+        self.test_employee = self.employee_model.create({
+            "name": "Test Employee",
+        })
+        self.rfid_card_code = "5b3f5"
+        self.test_employee.rfid_card_code = self.rfid_card_code
+        self.log_failed = self.env["hr.attendance.rfid.log"].create(
             {
-                "state" : "failed",
+                "state": "failed",
                 "rfid_card_code": self.rfid_card_code,
                 "employee_id": self.test_employee.id,
             }
         )
-        # self.employee_model = self.env["hr.employee"]
-        # self.test_employee = self.browse_ref("hr.employee_al")
-        # self.rfid_card_code = "5b3f5"
-        # self.test_employee.rfid_card_code = self.rfid_card_code
 
     def test_create_log(self):
         """Valid employee"""
@@ -31,7 +33,8 @@ class TestHrAttendance(TransactionCase):
         wizard = self.env["hr.attendance.rfid.log.assign.employee"].create({
             "rfid_card_code": self.rfid_card_code,
             # You need to provide the ID of the attendance RFID log here
-            "attendance_rfid_log_id": self.id,
+            "hr_attendance_rfid_log_id": self.log_failed.id,
+            "employee_id": self.test_employee.id,
         })
         return wizard
 
@@ -47,6 +50,6 @@ class TestHrAttendance(TransactionCase):
                 ),
             }
         )
-        self.test_employee.update({"attendance_state": "checked_in"})
+        self.test_employee.write({"attendance_state": "checked_in"})
         res = self.employee_model.register_attendance(self.rfid_card_code)
-        self.assertNotEquals(res["error_message"], "")
+        self.assertNotEqual(res.get("error_message", ""), "")
